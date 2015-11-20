@@ -1,0 +1,19 @@
+monitor readme
+
+This is a collection of little daemons that are to be initiated by a management
+program, monitor.py. It will be run by the system scheduler, but could be 
+easily modified to run independently. The management program will run every 
+monitor in the monitors/ directory.
+
+The management program will leave a timestamp in the status/ directory. The 
+other daemons will also leave information in this directory, usually just a 
+timestamp with a status, but in other cases, (notably failures), they will
+leave notes.
+
+All of the statuses are read by the bottle server readout.py, which will 
+populate status icons, and any notes left by the monitors into a webpage, and
+return that to browser requests. Status colors are as follows:
+    green   okay
+    yellow  outdated
+    red     failed
+
