@@ -82,4 +82,11 @@ class pingStatus(status):
 class portStatus(status):
     def __init__(self, service, address, port):
         self.values = {'service': service, 'type': 'portscan'}
-        
+        a = socket.socket()
+        a.settimeout(10)
+        try:
+            a.connect((address, int(port)))
+            self.values['status'] = 'good'
+        except ConnectionRefusedError:
+            self.values['status'] = 'bad'
+        self.record(service)

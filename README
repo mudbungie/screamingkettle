@@ -22,3 +22,8 @@ Supported services and their directives are as follows:
     ping:
     serviceType=ping
     address=1.2.3.4 OR example.com
+
+    portscan:
+    serviceType=portscan
+    address=1.2.3.4 OR example.com
+    port=1000

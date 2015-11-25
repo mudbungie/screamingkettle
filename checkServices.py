@@ -42,5 +42,9 @@ for serviceDefinitionFile in os.listdir(monitorFilesPath):
         elif directives['serviceType'] == 'ping':
             status = monitorStatus.pingStatus(directives['service'], 
                             directives['address'])
+        elif directives['serviceType'] == 'portscan':
+            status = monitorStatus.portStatus(directives['service'],
+                            directives['address'], directives['port'])
+
         # write the status of the service to a file
         status.record(directives['service'])
