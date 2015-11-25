@@ -21,9 +21,10 @@ for serviceDefinitionFile in os.listdir(monitorFilesPath):
             if line.lstrip()[0] != '#':
                 lineSplit = line.split('=', 1)
                 directives[lineSplit[0]] = lineSplit[1]
+        #test code
+        #print(directives['service'] + ' ' + directives['serviceType'])
         # based on the service type, make an appropriate status object
         ## websites
-        print(directives['service'] + ' ' + directives['serviceType'])
         if directives['serviceType'] == 'website':
             # if there's a checkString, pass it
             try:
