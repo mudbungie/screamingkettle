@@ -17,7 +17,8 @@ def index():
     response += '</style></head>'
     response += '<body>\n'
     response += '<table>\n'
-    response += '<tr><td>Service</td><td>Status</td><td>Last Updated</td><td>Notes</td></tr>\n'
+    response += '<tr><td>Service</td><td>Type</td><td>Status</td>'
+    response += '<td>Last Updated</td><td>Notes</td></tr>\n'
     # for adding each status to the table
     def appendStatus(fieldName, values):
         try:
@@ -60,6 +61,7 @@ def index():
     for status in statuses:
         response += '<tr>'
         response += appendStatus('service', status.values)
+        response += appendStatus('type', status.values)
         response += appendStatus('status', status.values)
         response += appendStatus('timestamp', status.values)
         response += appendStatus('notes', status.values)

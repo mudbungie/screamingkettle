@@ -33,7 +33,7 @@ class webStatus(status):
     # checks a site to see if it responds. Optionally verifies the contents of
     # the site to contain a string
     def __init__(self, service , url, checkString=False):
-        self.values = {'service': service}
+        self.values = {'service': service, 'type': 'http'}
         try:
             page = urllib.request.urlretrieve(url)
             self.values['status'] = 'good'
@@ -43,7 +43,7 @@ class webStatus(status):
 
 class minecraftStatus(status):
     def __init__(self, service, connectionString):
-        self.values = {'service': service}
+        self.values = {'service': service, 'type': 'minecraft'}
         server = MinecraftServer.lookup(connectionString)
         try:
             status = server.status()
@@ -56,12 +56,13 @@ class minecraftStatus(status):
             self.values['status'] = 'bad'
             self.values['notes'] = 'Connection timeout'
         self.record(service)
+
 class pingStatus(status):
     # FULL WARNING: python3 can't intrinsically run pings without elevating
     # privileges and using a bunch of extra code. Just not in the system set.
     # So, I'm subscripting it to bash, and the local suid-enabled ping binary.
     def __init__(self, service, address):
-        self.values = {'service': service}
+        self.values = {'service': service, 'type': 'ping'}
         
         # this is silly, because it's your conf file, but I get really nervous
         # whenever I'm executing inputs directly into a shell, so sanitize!
@@ -77,3 +78,8 @@ class pingStatus(status):
         else:
             self.values['status'] = 'bad'
         self.record(service)
+
+class portStatus(status):
+    def __init__(self, service, address, port):
+        self.values = {'service': service, 'type': 'portscan'}
+        
