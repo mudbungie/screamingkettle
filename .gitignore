@@ -1,2 +1,3 @@
 statuses/**
-*.pyc
+monitors/**
+*.py[co]
