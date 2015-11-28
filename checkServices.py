@@ -42,6 +42,7 @@ for serviceDefinitionFile in os.listdir(monitorFilesPath):
         elif directives['serviceType'] == 'ping':
             status = monitorStatus.pingStatus(directives['service'], 
                             directives['address'])
+        ## check if a port is open
         elif directives['serviceType'] == 'portscan':
             status = monitorStatus.portStatus(directives['service'],
                             directives['address'], directives['port'])
