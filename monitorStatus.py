@@ -41,7 +41,7 @@ class webStatus(status):
                 pass
             else:
                 self.values['status'] = 'good'
-        except ConnectionError:
+        except requests.exceptions.ConnectionError:
             self.values['status'] = 'bad'
         self.record(service)
 
