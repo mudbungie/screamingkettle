@@ -7,7 +7,7 @@
 # all other values are to be on their own lines, and delimited by an '='
 
 import os
-import monitorStatus
+import kettles
 import sys
 
 monitorFilesPath = sys.path[0] + os.sep + 'monitors/'
@@ -28,23 +28,23 @@ for serviceDefinitionFile in os.listdir(monitorFilesPath):
         if directives['serviceType'] == 'website':
             # if there's a checkString, pass it
             try:
-                status = monitorStatus.webStatus(directives['service'], 
+                status = kettles.webStatus(directives['service'], 
                             directives['url'], directives['checkString'])
             # otherwise whatever
             except KeyError:
-                status = monitorStatus.webStatus(directives['service'], 
+                status = kettles.webStatus(directives['service'], 
                             directives['url'])
         ## minecraft servers
         elif directives['serviceType'] == 'minecraft':
-            status = monitorStatus.minecraftStatus(directives['service'], 
+            status = kettles.minecraftStatus(directives['service'], 
                             directives['connectionString'])
         ## host pings
         elif directives['serviceType'] == 'ping':
-            status = monitorStatus.pingStatus(directives['service'], 
+            status = kettles.pingStatus(directives['service'], 
                             directives['address'])
         ## check if a port is open
         elif directives['serviceType'] == 'portscan':
-            status = monitorStatus.portStatus(directives['service'],
+            status = kettles.portStatus(directives['service'],
                             directives['address'], directives['port'])
 
         # write the status of the service to a file

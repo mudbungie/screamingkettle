@@ -1,9 +1,14 @@
-systems-monitor readme
+screamingkettle readme
 
-This is a daemon (checkServices.py), which runs one of several types of
+This is a script (watchPots.py), which runs one of several types of
 essentially Boolean verfications of external services. This then records those
-statuses, which are read by a Bottle server (readout.py), and reported to a
+statuses, which are read by a Bottle server (whistle.py), and reported to a
 web browser on port 8000.
+
+The most important files to understand here are:
+whistle.py: a bottle server, to be run on the monitoring machine for easy web readout
+watchPots.py: checks all the services, provides the statuses read by whistle
+kettles.py: library for the previous two
 
 To add new services for monitoring, add a file in the monitors/ directory, with
 a recognizable name for the file. This filename is how the service will be

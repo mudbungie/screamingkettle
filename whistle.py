@@ -7,7 +7,7 @@
 from bottle import route, run, template
 import datetime, pytz
 import os.path
-import monitorStatus
+import kettles
 
 @route('/')
 def index():
@@ -54,8 +54,8 @@ def index():
             row =  '<td></td>'
         return row
     # crawl the statuses directory for all the things that I'm watching
-    for listing in os.listdir(monitorStatus.statusFilesPath):
-        a = monitorStatus.recordedStatus(listing)
+    for listing in os.listdir(kettles.statusFilesPath):
+        a = kettles.recordedStatus(listing)
         statuses.append(a)
     # add the contents of those statuses to the response 
     for status in statuses:
