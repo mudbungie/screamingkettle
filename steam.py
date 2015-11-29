@@ -11,8 +11,8 @@ from subprocess import check_output
 
 @route('/')
 def index():
-    command = argv[1]
-    response = check_output(command).decode()
+    command = argv[1].split()
+    response = check_output((command)).decode()
 
     return response
 
