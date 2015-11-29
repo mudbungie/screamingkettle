@@ -1,6 +1,6 @@
 import sys, os
 import datetime, pytz
-import urllib.request
+import requests
 from mcstatus import MinecraftServer
 import socket
 import re
@@ -35,9 +35,13 @@ class webStatus(status):
     def __init__(self, service , url, checkString=False):
         self.values = {'service': service, 'type': 'http'}
         try:
-            page = urllib.request.urlretrieve(url)
-            self.values['status'] = 'good'
-        except urllib.error.URLError:
+            page = requests.get(url)
+            # if there was a string to check in the output
+            if checkString:
+                pass
+            else:
+                self.values['status'] = 'good'
+        except ConnectionError:
             self.values['status'] = 'bad'
         self.record(service)
 
