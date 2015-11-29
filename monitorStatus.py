@@ -36,9 +36,13 @@ class webStatus(status):
         self.values = {'service': service, 'type': 'http'}
         try:
             page = requests.get(url)
-            # if there was a string to check in the output
+            # if there was a string to check in the page
             if checkString:
-                pass
+                # then check for it
+                if checkString in page.text:
+                    self.values['status'] = 'good'
+                else:
+                    self.values['status'] = 'bad'
             else:
                 self.values['status'] = 'good'
         except requests.exceptions.ConnectionError:
