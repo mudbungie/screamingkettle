@@ -6,9 +6,10 @@ statuses, which are read by a Bottle server (whistle.py), and reported to a
 web browser on port 8000.
 
 The most important files to understand here are:
-whistle.py: a bottle server, to be run on the monitoring machine for easy web readout
+whistle.py: a Bottle server, to be run on the monitoring machine for easy web readout
 watchPots.py: checks all the services, provides the statuses read by whistle
 kettles.py: library for the previous two
+steam.py: is an easy, portable Bottle server for giving output to a browser
 
 To add new services for monitoring, add a file in the monitors/ directory, with
 a recognizable name for the file. This filename is how the service will be
