@@ -12,7 +12,8 @@ import kettles
 @route('/')
 def index():
     statuses = []
-    response =  '<head><style>'
+    response =  '<head><meta http-equiv="refresh" content="60">\n'
+    response += '<style>'
     response += 'table td{border: 1px solid black;}'
     response += '</style></head>'
     response += '<body>\n'
