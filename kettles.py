@@ -97,4 +97,8 @@ class portStatus(status):
             self.values['status'] = 'good'
         except ConnectionRefusedError:
             self.values['status'] = 'bad'
+            self.values['notes'] = 'port closed'
+        except OSError:
+            self.values['status'] = 'bad'
+            self.values['notes'] = 'port filtered'
         self.record(service)
