@@ -10,17 +10,8 @@ statusFilesPath = sys.path[0] + os.sep + 'statuses/'
 # parent class for statuses
 # not for implementation on its own; needs to get values from child classes
 class status:
-    def record(self, title):
-        # writes the status to a file for use by the webserver
-        timestamp = datetime.datetime.now(tz=pytz.utc).isoformat()
-        with open(statusFilesPath + title, 'w') as statusFile:
-            # start out with a fresh timestamp
-            self.values['timestamp'] = timestamp
-            for key, value in self.values.items():
-                statusFile.write(key + '=' + value + '\n')
-
-class recordedStatus(status):
     # for repopulating a status from a file
+    # gets shadowed by child classes
     def __init__(self, fileName):
         self.values = {'service': fileName.split('/')[-1]}
         with open(statusFilesPath + fileName) as statusFile:
@@ -28,6 +19,27 @@ class recordedStatus(status):
                 for line in statusFile.read().splitlines():
                     lineSplit = line.split('=', 1)
                     self.values[lineSplit[0]] = lineSplit[1]
+    
+    def record(self, title):
+        # start out with a fresh timestamp
+        timestamp = datetime.datetime.now(tz=pytz.utc).isoformat()
+        self.values['timestamp'] = timestamp
+        
+        # get the data from existing file
+        statusFileName = statusFilesPath + title
+        try:
+            oldStatus = status(title)
+            # if the status is unchanged, we'll keep track of how long it's been that way
+            if oldStatus.values['status'] == self.values['status']:
+                self.values['lastChanged'] = oldStatus.values['lastChanged']
+        except (FileNotFoundError, KeyError):
+            # in case the status wasn't run before, or didn't include a lastChanged
+            self.values['lastChanged'] = self.values['timestamp']
+
+        # writes the status to a file for use by the webserver
+        with open(statusFilesPath + title, 'w') as statusFile:
+            for key, value in self.values.items():
+                statusFile.write(key + '=' + value + '\n')
 
 class webStatus(status):
     # checks a site to see if it responds. Optionally verifies the contents of
@@ -47,9 +59,6 @@ class webStatus(status):
                 self.values['status'] = 'good'
         except requests.exceptions.ConnectionError:
             self.values['status'] = 'bad'
-
-#class uptimeStatus(webStatus):
-    
 
 class minecraftStatus(status):
     def __init__(self, service, connectionString):

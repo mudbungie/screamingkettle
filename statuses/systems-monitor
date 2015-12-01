@@ -1,4 +1,5 @@
-service=systems-monitor
-timestamp=2015-12-01T10:03:03.520382+00:00
+timestamp=2015-12-01T12:25:01.808240+00:00
 status=good
+service=systems-monitor
 type=http
+lastChanged=2015-12-01T12:16:01.612603+00:00
