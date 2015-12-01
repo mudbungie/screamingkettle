@@ -35,11 +35,11 @@ class webStatus(status):
     def __init__(self, service , url, checkString=False):
         self.values = {'service': service, 'type': 'http'}
         try:
-            page = requests.get(url)
+            self.page = requests.get(url)
             # if there was a string to check in the page
             if checkString:
                 # then check for it
-                if checkString in page.text:
+                if checkString in self.page.text:
                     self.values['status'] = 'good'
                 else:
                     self.values['status'] = 'bad'
@@ -47,7 +47,9 @@ class webStatus(status):
                 self.values['status'] = 'good'
         except requests.exceptions.ConnectionError:
             self.values['status'] = 'bad'
-        self.record(service)
+
+#class uptimeStatus(webStatus):
+    
 
 class minecraftStatus(status):
     def __init__(self, service, connectionString):
@@ -63,7 +65,6 @@ class minecraftStatus(status):
         except socket.timeout:
             self.values['status'] = 'bad'
             self.values['notes'] = 'Connection timeout'
-        self.record(service)
 
 class pingStatus(status):
     # FULL WARNING: python3 can't intrinsically run pings without elevating
@@ -85,7 +86,6 @@ class pingStatus(status):
             self.values['status'] = 'good'
         else:
             self.values['status'] = 'bad'
-        self.record(service)
 
 class portStatus(status):
     def __init__(self, service, address, port):
@@ -101,4 +101,3 @@ class portStatus(status):
         except OSError:
             self.values['status'] = 'bad'
             self.values['notes'] = 'port filtered'
-        self.record(service)
