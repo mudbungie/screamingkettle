@@ -9,10 +9,25 @@ import datetime, pytz
 import os.path
 import Kettles
 
-def timeSince(timeString):
-    startTime = datetime.datetime.strptime(timeString.replace(':',''),
-                        '%Y-%m-%dT%H%M%S.%f%z')
-    return datetime.datetime.now(tz=pytz.utc) - startTime
+class TimeDifference:
+    def __init__(self, timeString):
+        startTime = datetime.datetime.strptime(timeString.replace(':',''),
+                            '%Y-%m-%dT%H%M%S.%f%z')
+        difference = datetime.datetime.now(tz=pytz.utc) - startTime
+        self.seconds = int(difference.seconds % 60)
+        self.minutes = int(difference.seconds / 60 % 60)
+        self.hours   = int(difference.seconds / 3600 % 24)
+        self.days    = int(difference.seconds / 86400)
+        
+        self.softTime = ''
+        def appendToSoftTime(unitTime, timeUnit):
+            # trims leading units with zeros
+            if unitTime != 0 or len(self.softTime) > 0:
+                self.softTime = self.softTime + str(unitTime).zfill(2) + timeUnit
+        appendToSoftTime(self.days, 'd ')
+        appendToSoftTime(self.hours, 'h ')
+        appendToSoftTime(self.minutes, 'm ')
+        appendToSoftTime(self.seconds, 's')
 
 def appendStatus(fieldName, values):
     try:
@@ -23,39 +38,21 @@ def appendStatus(fieldName, values):
                 row = '<td style="background:green">' + field + '</td>'
             else:
                 row = '<td style="background:red">' + field + '</td>'
+        
         elif fieldName == 'timestamp':
-            statusAge = timeSince(values[fieldName])
-            if statusAge.seconds < 120:
-                softTime = str(int(statusAge.seconds)) + ' seconds'
+            statusAge = TimeDifference(values[fieldName])
+            if statusAge.minutes < 2:
                 color = 'green'
-            elif statusAge.seconds < 600:
-                softTime = 'more than ' + str(int((statusAge.seconds / 60) + 1)) + ' minutes'
+            elif statusAge.minutes < 10:
                 color = 'yellow'
-            elif statusAge.seconds < 7200:
-                softTime = 'more than ' + str(int((statusAge.seconds / 60) + 1)) + ' minutes'
-                color = 'red'
             else:
-                softTime = 'more than ' + str(int((statusAge.seconds / 3600) + 1)) + ' hours'
                 color = 'red'
-            row = '<td style="background:' + color + '">' + softTime + '</td>'
+            row = '<td style="background:' + color + '">' + statusAge.softTime + '</td>'
+        
         elif fieldName == 'lastChanged':
-            # Show the time since the status has last changed
-            unchangedFor = timeSince(values[fieldName])
-            # Pretty-formatting
-            softTime = str(int(unchangedFor.seconds %60)) + 's'
-            if unchangedFor.seconds > 60:
-                unitTime = int(unchangedFor.seconds /60%60)
-                timeUnit = 'm '
-                softTime = str(unitTime).zfill(2) + timeUnit + softTime
-                if unchangedFor.seconds > 3600:
-                    unitTime = int(unchangedFor.seconds /3600%24)
-                    timeUnit = 'h '
-                    softTime = str(unitTime).zfill(2) + timeUnit + softTime
-                    if unchangedFor.seconds > 86400:
-                        unitTime = int(unchangedFor.seconds /86400)
-                        timeUnit = 'd '
-                        softTime = str(unitTime).zfill(2) + timeUnit + softTime
-            row = '<td>' + softTime + '</td><!-- ' + values[fieldName] + ' -->'
+            lastChanged = TimeDifference(values[fieldName])
+            row = '<td>' + lastChanged.softTime + '</td><!-- ' + values[fieldName] + ' -->'
+
         else:
             row =  '<td>' + values[fieldName] + '</td>'
     # To keep things aligned in case a field is empty
