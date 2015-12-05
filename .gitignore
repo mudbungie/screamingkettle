@@ -1,3 +1,4 @@
 statuses/**
 monitors/**
 *.py[co]
+__pycache__/**

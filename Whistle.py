@@ -73,7 +73,9 @@ def index():
     response += '<td>Last Updated</td><td>Status Unchanged For</td><td>Notes</td></tr>\n'
     # For adding each status to the table
     # Crawl the statuses directory for all the things that I'm watching
-    for listing in os.listdir(Kettles.statusFilesPath):
+    listings = os.listdir(Kettles.statusFilesPath)
+    listings.sort()
+    for listing in listings:
         a = Kettles.Status(listing)
         statuses.append(a)
     # Add the contents of those statuses to the response 
