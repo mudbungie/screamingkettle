@@ -1,51 +1,48 @@
 #!/usr/bin/python3
 
-## executes monitors found in the ./monitors/ directory, updating statuses
+## Executes monitors found in the ./monitors/ directory, updating statuses
 ## in the ./statuses/ directory.
 
-# name of the service to be monitored is the filename of the monitor file
+# Name of the service to be monitored is the filename of the monitor file
 # all other values are to be on their own lines, and delimited by an '='
 
 import os
-import kettles
+import Kettles
 import sys
 
-monitorFilesPath = sys.path[0] + os.sep + 'monitors/'
+monitorFilesPath = sys.path[0] + os.sep + 'monitors' + os.sep
 
 for serviceDefinitionFile in os.listdir(monitorFilesPath):
-    # parse the config file into a dictionary
+    # Parse the config file into a dictionary
     directives = {'service': serviceDefinitionFile}
     with open(monitorFilesPath + serviceDefinitionFile, 'r') as serviceDefinition:
         for line in serviceDefinition.read().splitlines():
-            # ignore commented lines
+            # Ignores commented lines
             if line.lstrip()[0] != '#':
                 lineSplit = line.split('=', 1)
                 directives[lineSplit[0]] = lineSplit[1]
-        #test code
-        #print(directives['service'] + ' ' + directives['serviceType'])
-        # based on the service type, make an appropriate status object
-        ## websites
-        if directives['serviceType'] == 'website':
-            # if there's a checkString, pass it
+        ## http
+        if directives['serviceType'] == 'http':
+            # If there's a checkString, pass it
             try:
-                status = kettles.webStatus(directives['service'], 
+                status = Kettles.WebStatus(directives['service'], 
                             directives['url'], directives['checkString'])
-            # otherwise whatever
+            # Otherwise whatever
             except KeyError:
-                status = kettles.webStatus(directives['service'], 
+                status = Kettles.WebStatus(directives['service'], 
                             directives['url'])
         ## minecraft servers
         elif directives['serviceType'] == 'minecraft':
-            status = kettles.minecraftStatus(directives['service'], 
+            status = Kettles.MinecraftStatus(directives['service'], 
                             directives['connectionString'])
-        ## host pings
+        ## ping
         elif directives['serviceType'] == 'ping':
-            status = kettles.pingStatus(directives['service'], 
+            status = Kettles.PingStatus(directives['service'], 
                             directives['address'])
         ## check if a port is open
         elif directives['serviceType'] == 'portscan':
-            status = kettles.portStatus(directives['service'],
+            status = Kettles.PortStatus(directives['service'],
                             directives['address'], directives['port'])
 
-        # write the status of the service to a file
+        # Write the status of the service to a file
         status.record(directives['service'])

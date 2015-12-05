@@ -5,50 +5,50 @@ from mcstatus import MinecraftServer
 import socket
 import re
 
-statusFilesPath = sys.path[0] + os.sep + 'statuses/'
+statusFilesPath = sys.path[0] + os.sep + 'statuses' + os.sep
 
-# parent class for statuses
-# not for implementation on its own; needs to get values from child classes
-class status:
-    # for repopulating a status from a file
-    # gets shadowed by child classes
+# Parent class for statuses
+# Not for implementation on its own; needs to get values from child classes
+class Status:
+    # For repopulating a status from a file
+    # Gets shadowed by child classes
     def __init__(self, fileName):
         self.values = {'service': fileName.split('/')[-1]}
         with open(statusFilesPath + fileName) as statusFile:
-                # break on the first '=' sign to establish key-value pairs for a dictionary
+                # Break on the first '=' sign to establish key-value pairs for a dictionary
                 for line in statusFile.read().splitlines():
                     lineSplit = line.split('=', 1)
                     self.values[lineSplit[0]] = lineSplit[1]
     
     def record(self, title):
-        # start out with a fresh timestamp
+        # Start out with a fresh timestamp
         timestamp = datetime.datetime.now(tz=pytz.utc).isoformat()
         self.values['timestamp'] = timestamp
         
-        # get the data from existing file
+        # Get the data from existing file
         statusFileName = statusFilesPath + title
         try:
-            oldStatus = status(title)
-            # if the status is unchanged, we'll keep track of how long it's been that way
+            oldStatus = Status(title)
+            # If the status is unchanged, we'll keep track of how long it's been that way
             if oldStatus.values['status'] == self.values['status']:
                 self.values['lastChanged'] = oldStatus.values['lastChanged']
         except (FileNotFoundError, KeyError):
-            # in case the status wasn't run before, or didn't include a lastChanged
+            # In case the status wasn't run before, or didn't include a lastChanged
             self.values['lastChanged'] = self.values['timestamp']
 
-        # writes the status to a file for use by the webserver
+        # Writes the status to a file for use by the webserver
         with open(statusFilesPath + title, 'w') as statusFile:
             for key, value in self.values.items():
                 statusFile.write(key + '=' + value + '\n')
 
-class webStatus(status):
-    # checks a site to see if it responds. Optionally verifies the contents of
-    # the site to contain a string
+class WebStatus(Status):
+    # Checks a site to see if it responds. Optionally verifies the contents of
+    # The site to contain a string
     def __init__(self, service , url, checkString=False):
         self.values = {'service': service, 'type': 'http'}
         try:
             self.page = requests.get(url)
-            # if there was a string to check in the page
+            # If there was a string to check in the page
             if checkString:
                 # then check for it
                 if checkString in self.page.text:
@@ -60,7 +60,7 @@ class webStatus(status):
         except requests.exceptions.ConnectionError:
             self.values['status'] = 'bad'
 
-class minecraftStatus(status):
+class MinecraftStatus(Status):
     def __init__(self, service, connectionString):
         self.values = {'service': service, 'type': 'minecraft'}
         server = MinecraftServer.lookup(connectionString)
@@ -75,7 +75,7 @@ class minecraftStatus(status):
             self.values['status'] = 'bad'
             self.values['notes'] = 'Connection timeout'
 
-class pingStatus(status):
+class PingStatus(Status):
     # FULL WARNING: python3 can't intrinsically run pings without elevating
     # privileges and using a bunch of extra code. Just not in the system set.
     # So, I'm subscripting it to bash, and the local suid-enabled ping binary.
@@ -84,19 +84,19 @@ class pingStatus(status):
         
         # this is silly, because it's your conf file, but I get really nervous
         # whenever I'm executing inputs directly into a shell, so sanitize!
-        ## this matches dotted decimal IPv4 addresses
+        ## This matches dotted decimal IPv4 addresses
         if not re.match('([0-9]{1,3}\.){3}[0-9]', address):
             address = socket.gethostbyname(address)
         command = 'ping ' + address + ' -c 1 >/dev/null'
 
-        # see if you can reach it
+        # See if you can reach it
         ping = os.system(command)
         if ping == 0:
             self.values['status'] = 'good'
         else:
             self.values['status'] = 'bad'
 
-class portStatus(status):
+class PortStatus(Status):
     def __init__(self, service, address, port):
         self.values = {'service': service, 'type': 'portscan'}
         a = socket.socket()
