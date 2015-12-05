@@ -41,11 +41,10 @@ class Status:
             for key, value in self.values.items():
                 statusFile.write(key + '=' + value + '\n')
 
-class WebStatus(Status):
+class HttpStatus(Status):
     # Checks a site to see if it responds. Optionally verifies the contents of
     # The site to contain a string
-    def __init__(self, service , url, checkString=False):
-        self.values = {'service': service, 'type': 'http'}
+    def getPage(self, url, checkString=False):
         try:
             self.page = requests.get(url)
             # If there was a string to check in the page
@@ -59,6 +58,19 @@ class WebStatus(Status):
                 self.values['status'] = 'good'
         except requests.exceptions.ConnectionError:
             self.values['status'] = 'bad'
+        
+    def __init__(self, service , url, checkString=False, notes=False):
+        self.values = {'service': service, 'type': 'http'}
+        if checkString:
+            self.getPage(url, checkString)
+        else:
+            self.getPage(url, checkString)
+
+class WebReport(HttpStatus):
+    # posts the output of an HTTP request to the notes field
+    def __init__(self, service, url):
+        self.getPage(url)
+        self.values['notes'] = self.page.text
 
 class MinecraftStatus(Status):
     def __init__(self, service, connectionString):

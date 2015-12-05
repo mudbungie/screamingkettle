@@ -25,11 +25,15 @@ for serviceDefinitionFile in os.listdir(monitorFilesPath):
         if directives['serviceType'] == 'http':
             # If there's a checkString, pass it
             try:
-                status = Kettles.WebStatus(directives['service'], 
+                status = Kettles.HttpStatus(directives['service'], 
                             directives['url'], directives['checkString'])
             # Otherwise whatever
             except KeyError:
                 status = Kettles.WebStatus(directives['service'], 
+                            directives['url'])
+        ## takes the output of a webserver and posts it
+        if directives['serviceType'] == 'webreport':
+            status = Kettles.WebReport(directives['service'],
                             directives['url'])
         ## minecraft servers
         elif directives['serviceType'] == 'minecraft':
