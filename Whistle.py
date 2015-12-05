@@ -21,7 +21,7 @@ class TimeDifference:
         
         self.softTime = ''
         def appendToSoftTime(unitTime, timeUnit):
-            # trims leading units with zeros
+            # Trims leading empty time units
             if unitTime != 0 or len(self.softTime) > 0:
                 self.softTime = self.softTime + str(unitTime).zfill(2) + timeUnit
         appendToSoftTime(self.days, 'd ')
