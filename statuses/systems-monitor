@@ -1,5 +1,5 @@
-status=bad
-type=http
 service=systems-monitor
-lastChanged=2015-12-05T04:17:31.399512+00:00
-timestamp=2015-12-05T04:31:59.884783+00:00
+lastChanged=2015-12-05T05:59:01.509542+00:00
+status=good
+type=http
+timestamp=2015-12-05T09:16:02.315242+00:00
