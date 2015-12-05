@@ -11,9 +11,10 @@ from subprocess import check_output
 
 @route('/')
 def index():
-    command = argv[1].split()
+    command = argv[2].split()
     response = check_output((command)).decode()
 
     return response
 
-run(host='0.0.0.0', port=8001)
+serverPort = argv[1]
+run(host='0.0.0.0', port=serverPort)
