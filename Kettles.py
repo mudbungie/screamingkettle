@@ -18,7 +18,10 @@ class Status:
                 # Break on the first '=' sign to establish key-value pairs for a dictionary
                 for line in statusFile.read().splitlines():
                     lineSplit = line.split('=', 1)
-                    self.values[lineSplit[0]] = lineSplit[1]
+                    try:
+                        self.values[lineSplit[0]] = lineSplit[1]
+                    except IndexError:
+                        pass
     
     def record(self, title):
         # Start out with a fresh timestamp
@@ -38,6 +41,8 @@ class Status:
 
         # Writes the status to a file for use by the webserver
         with open(statusFilesPath + title, 'w') as statusFile:
+            #print('\n')
+            #print(self.values['service'])
             for key, value in self.values.items():
                 statusFile.write(key + '=' + value + '\n')
 
@@ -67,10 +72,12 @@ class HttpStatus(Status):
             self.getPage(url, checkString)
 
 class WebReport(HttpStatus):
-    # posts the output of an HTTP request to the notes field
+    # Posts the output of an HTTP request to the notes field
     def __init__(self, service, url):
+        self.values = {'service': service, 'type': 'webreport'}
         self.getPage(url)
-        self.values['notes'] = self.page.text
+        # Because Unicode
+        self.values['notes'] = self.page.text.encode('ascii', 'ignore').decode()
 
 class MinecraftStatus(Status):
     def __init__(self, service, connectionString):

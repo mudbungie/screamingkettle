@@ -29,7 +29,7 @@ for serviceDefinitionFile in os.listdir(monitorFilesPath):
                             directives['url'], directives['checkString'])
             # Otherwise whatever
             except KeyError:
-                status = Kettles.WebStatus(directives['service'], 
+                status = Kettles.HttpStatus(directives['service'], 
                             directives['url'])
         ## takes the output of a webserver and posts it
         if directives['serviceType'] == 'webreport':
