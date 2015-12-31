@@ -8,11 +8,11 @@ from bottle import route, run, template
 import datetime, pytz
 import os.path
 import Kettles
+from dateutil.parser import parse as dateParse
 
 class TimeDifference:
     def __init__(self, timeString):
-        startTime = datetime.datetime.strptime(timeString.replace(':',''),
-                            '%Y-%m-%dT%H%M%S.%f%z')
+        startTime = dateParse(timeString)
         difference = datetime.datetime.now(tz=pytz.utc) - startTime
         self.totalSeconds = int(difference.seconds)
         self.seconds = int(difference.seconds % 60)
