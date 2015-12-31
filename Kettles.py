@@ -60,14 +60,16 @@ class HttpStatus(Status):
             else:
                 self.values['status'] = 'good'
         except requests.exceptions.ConnectionError:
-            self.values['status'] = 'bad'
+            if self.retries < 3:
+                self.retries += 1
+                self.getPage(url, checkString)
+            else:
+                self.values['status'] = 'bad'
         
     def __init__(self, service , url, checkString=False, notes=False):
         self.values = {'service': service, 'type': 'http'}
-        if checkString:
-            self.getPage(url, checkString)
-        else:
-            self.getPage(url, checkString)
+        self.retries = 0
+        self.getPage(url, checkString)
 
 class WebReport(HttpStatus):
     # Posts the output of an HTTP request to the notes field
