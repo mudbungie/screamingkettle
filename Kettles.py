@@ -41,8 +41,6 @@ class Status:
 
         # Writes the status to a file for use by the webserver
         with open(statusFilesPath + title, 'w') as statusFile:
-            #print('\n')
-            #print(self.values['service'])
             for key, value in self.values.items():
                 statusFile.write(key + '=' + value + '\n')
 
@@ -93,6 +91,9 @@ class MinecraftStatus(Status):
         except socket.timeout:
             self.values['status'] = 'bad'
             self.values['notes'] = 'Connection timeout'
+        except OSError:
+            self.values['status'] = 'bad'
+            self.values['notes'] = 'No response; likely booting'
 
 class PingStatus(Status):
     # FULL WARNING: python3 can't intrinsically run pings without elevating
