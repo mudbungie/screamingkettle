@@ -14,6 +14,7 @@ class TimeDifference:
         startTime = datetime.datetime.strptime(timeString.replace(':',''),
                             '%Y-%m-%dT%H%M%S.%f%z')
         difference = datetime.datetime.now(tz=pytz.utc) - startTime
+        self.totalSeconds = int(difference.seconds)
         self.seconds = int(difference.seconds % 60)
         self.minutes = int(difference.seconds / 60 % 60)
         self.hours   = int(difference.seconds / 3600 % 24)
@@ -41,9 +42,9 @@ def appendStatus(fieldName, values):
         
         elif fieldName == 'timestamp':
             statusAge = TimeDifference(values[fieldName])
-            if statusAge.minutes < 2:
+            if statusAge.totalSeconds < 120:
                 color = 'green'
-            elif statusAge.minutes < 10:
+            elif statusAge.totalSeconds < 600:
                 color = 'yellow'
             else:
                 color = 'red'

@@ -1,5 +1,5 @@
 type=http
-timestamp=2015-12-31T10:10:22.750938+00:00
+status=good
+timestamp=2015-12-31T11:09:08.421299+00:00
 service=systems-monitor
 lastChanged=2015-12-12T11:17:02.400085+00:00
-status=good
