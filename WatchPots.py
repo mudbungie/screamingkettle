@@ -34,8 +34,8 @@ def spawnChecks(path):
     for serviceDefinition in serviceDefinitions:
         if newPid == 0:
             newPid = os.fork()
-        if newPid != 0:
-            checkStatus(serviceDefinition)
+            if newPid != 0:
+                checkStatus(serviceDefinition)
 
 def checkStatus(directives):
     ## http

@@ -48,36 +48,43 @@ class HttpStatus(Status):
     # Checks a site to see if it responds. Optionally verifies the contents of
     # The site to contain a string
     def getPage(self, url, checkString=False):
-        try:
-            self.page = requests.get(url)
-            # If there was a string to check in the page
-            if checkString:
-                # then check for it
-                if checkString in self.page.text:
-                    self.values['status'] = 'good'
+        retries = 0
+        while retries < 3:
+            # No need to upset uptime for a lost packet
+            retries += 1
+            try:
+                self.page = requests.get(url)
+                # If there was a string to check in the page
+                if checkString:
+                    # then check for it
+                    if checkString in self.page.text:
+                        self.values['status'] = 'good'
+                        return True
+                    else:
+                        self.values['status'] = 'bad'
+                        return True
                 else:
-                    self.values['status'] = 'bad'
-            else:
-                self.values['status'] = 'good'
-        except requests.exceptions.ConnectionError:
-            if self.retries < 3:
-                self.retries += 1
-                self.getPage(url, checkString)
-            else:
-                self.values['status'] = 'bad'
+                    self.values['status'] = 'good'
+                    return True
+            except requests.exceptions.ConnectionError:
+                # If it fails, just try again
+                pass
+        # If it's tried three times, it's probably actually down
+        self.values['status'] = 'bad'
+        return False
         
     def __init__(self, service , url, checkString=False, notes=False):
         self.values = {'service': service, 'type': 'http'}
-        self.retries = 0
         self.getPage(url, checkString)
 
 class WebReport(HttpStatus):
-    # Posts the output of an HTTP request to the notes field
+    # Like HttpStatus, but posts the output of an HTTP request to the notes field
     def __init__(self, service, url):
         self.values = {'service': service, 'type': 'webreport'}
-        self.getPage(url)
-        # Because Unicode
-        self.values['notes'] = self.page.text.encode('ascii', 'ignore').decode()
+        # Assuming a successful status request
+        if self.getPage(url):
+            # Do the unicode dance, and post the result
+            self.values['notes'] = self.page.text.encode('ascii', 'ignore').decode()
 
 class MinecraftStatus(Status):
     def __init__(self, service, connectionString):
