@@ -5,7 +5,8 @@ from mcstatus import MinecraftServer
 import socket
 import re
 
-statusFilesPath = sys.path[0] + os.sep + 'statuses' + os.sep
+whereAmI = os.path.dirname(os.path.abspath(__file__)) + '/'
+statusFilesPath = whereAmI + 'statuses/'
 
 # Parent class for statuses
 # Not for implementation on its own; needs to get values from child classes
