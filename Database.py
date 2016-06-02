@@ -2,6 +2,8 @@ import sqlalchemy
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
+import requests
+from mcstatus import MinecraftServer
 
 engine = create_engine('sqlite:///screamingkettle.sqlite')
 meta = MetaData()
@@ -14,34 +16,78 @@ class Service(Base):
     name = Column(String(25), nullable=False)
     servicetype = Column(String(25), nullable=False)
     address = Column(String(25))
-    hasstring = Column(String(25)) # Verifies that content contains this value.
     port = Column(Integer)
+    hasstring = Column(String(25)) # Verifies that content contains this value.
+    tries = Column(Integer, default=3)
     report = Column(Boolean, default=True) # Whether or not it is displayed.
 
     @property
     def currentStatus(self):
-        return Session.query(Status).filter(and_(Status.expired == None,
-            Status.service == self.serviceid))
+        try:
+            s = Session()
+            return s.query(Status).filter(and_(Status.expired == None,
+                Status.service == self.serviceid)).one()
+        except sqlalchemy.orm.exc.NoResultFound:
+            return False
     def updateStatus(self, value):
         # Update the status if it has changed, do nothing otherwise.
-        if self.currentStatus.good != value:
+        currentStatus = self.currentStatus
+        if not currentStatus or not currentStatus.good == value:
             timestamp = datetime.now()
-            self.currentStatus.expired = timestamp
+            if currentStatus:
+                self.currentStatus.expired = timestamp
             s = Session()
-            s.add(Status(good=value, service=self.serviceid, 
-                observed=timestamp))
+            print(self.name, 'value:', value)
+            status = Status(good=value, service=self.serviceid, 
+                observed=timestamp)
+            s.add(status)
             s.commit()
 
-    def check(self):
-        s = socket.socket()
-        s.settimeout(2)
-        try:
-            s.connect((self.address, self.port))
-            self.updateStatus(True)
-        except (ConnectionRefusedError, OSError):
-            # OSError is timeout, ConnectionRefusedError is a closed port.
-            #FIXME Differentiate these errors when you add notes.
+    def check(self, tries=0):
+        if tries != 0 or tries >= self.tries:
+            # First thing's first, handle recursive retries.
             self.updateStatus(False)
+            return False
+        servicetype = self.servicetype
+        if servicetype == 'port':
+            s = socket.socket()
+            s.settimeout(2)
+            try:
+                s.connect((self.address, self.port))
+                self.updateStatus(True)
+                print('check passed for', self.address, 'at', self.port)
+            except (ConnectionRefusedError, OSError):
+                # OSError is timeout, ConnectionRefusedError is a closed port.
+                #FIXME Differentiate these errors when you add notes.
+                print('check failed for', self.address, 'at', self.port)
+                self.updateStatus(False)
+                tries += 1
+                self.check(tries=tries)
+        elif servicetype == 'http' or servicetype == 'https':
+            try:
+                url = servicetype + '://' + self.address + str(self.port)
+                p = requests.get(url)
+                if self.hasstring:
+                    if self.hasstring in p.text:
+                        self.updateStatus(True)
+                    else:
+                        self.updateStatus(False)
+                else:
+                    self.updateStatus(True)
+            # Requests has a lot of exceptions.
+            except (requests.exceptions.ConnectionError,
+                requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectTimeout):
+                    self.updateStatus(False)
+        elif servicetype == 'minecraft':
+            server = MinecraftServer.lookup(self.address + ':' + \
+                str(self.port))
+            try:
+                status = server.status()
+                self.updateStatus(True)
+            except (ConnectionRefusedError, socket.timeout, OSError):
+                self.updateStatus(False)
+            
 
 class Status(Base):
     __tablename__ = 'statuses'
