@@ -5,7 +5,7 @@ import datetime, pytz
 
 from Database import *
 
-def getStatuses():
+def getServices():
     # Sort by status, and when that status last changed.
     s = Session()
     services = s.query(Service).all()
@@ -32,4 +32,9 @@ def index():
     '<table>' +\
     '<tr><td>Service</td><td>Type</td><td>Status</td><td>Last Updated</td>' +\
     '<td>Status Unchanged For</td></tr>'
-    response.append(getStatuses)
+    for service in getServices():
+        response += service.html()
+    return response
+
+if __name__ == '__main__':
+    run(host='0.0.0.0', port=8000)

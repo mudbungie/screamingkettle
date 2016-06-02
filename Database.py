@@ -51,6 +51,29 @@ class Service(Base):
             newStatus(value, timestamp)
     
     def html(self):
+        timestamp = datetime.now()
+        def softtime(seconds):
+            softtime = ''
+            if seconds > 86400:
+                softtime += str(int(seconds/86400)) + 'd '
+            if seconds > 3600:
+                softtime += str(int(seconds%86400/3600)) + 'h '
+            if seconds > 60:
+                softtime += str(int(seconds%3600/60)) + 'm '
+            softtime += str(seconds%60) + 's'
+            return softtime
+            
+        def judgetime(seconds, dubious=120, bad=300):
+            # Return a column with a class, depending the time.
+            if seconds > dubious:
+                if seconds > bad:
+                    judgement = 'bad'
+                else:
+                    judgement = 'dubious'
+            else:
+                judgement = 'good'
+            return judgement
+
         html =  '<tr>'
         html += '<td>' + self.name + '</td>'
         html += '<td>' + self.servicetype + '</td>'
@@ -58,23 +81,12 @@ class Service(Base):
             html += '<td class="good">Good</td>'
         else:
             html += '<td class="bad">Bad</td>'
-        softtime = ''
-        age = datetime.now() - self.currentStatus.observed
-        if age.seconds > 86400:
-            softtime += str(int(age.seconds/86400)) + 'd'
-        if age.seconds > 3600:
-            softtime += str(int(age.seconds%86400/3600)) + 'h'
-        if age.seconds > 60:
-            softtime += str(int(age.seconds%3600/60)) + 'm'
-        softtime += str(age.seconds%60) + 's'
-        if age.seconds > 120:
-            if age.seconds > 300:
-                html += '<td class="bad">'
-            else:
-                html += '<td class="dubious">'
-        else:
-            html += '<td class="good">'
-        html += softtime + '</td>'
+        age = timestamp - self.currentStatus.lastchecked
+        html += '<td class="' + judgetime(age.seconds) + '">'
+        html += softtime(age.seconds) + '</td>'
+        age = timestamp - self.currentStatus.observed
+        html += '<td>' + softtime(age.seconds) + '</td>'
+
         return html
 
     def check(self, tries=0):
