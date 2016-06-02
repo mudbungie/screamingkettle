@@ -31,17 +31,51 @@ class Service(Base):
             return False
     def updateStatus(self, value):
         # Update the status if it has changed, do nothing otherwise.
-        currentStatus = self.currentStatus
-        if not currentStatus or not currentStatus.good == value:
-            timestamp = datetime.now()
-            if currentStatus:
-                self.currentStatus.expired = timestamp
+        def newStatus(value, timestamp):
             s = Session()
-            print(self.name, 'value:', value)
             status = Status(good=value, service=self.serviceid, 
-                observed=timestamp)
+                observed=timestamp, lastchecked=timestamp)
             s.add(status)
             s.commit()
+
+        print(self.name, 'value:', value)
+        currentStatus = self.currentStatus
+        timestamp = datetime.now()
+        if currentStatus:
+            currentStatus.lastchecked = timestamp
+            if not currentStatus.good == value:
+                currentStatus.expired = timestamp
+                newStatus(value, timestamp)
+            currentStatus.update()
+        else:
+            newStatus(value, timestamp)
+    
+    def html(self):
+        html =  '<tr>'
+        html += '<td>' + self.name + '</td>'
+        html += '<td>' + self.servicetype + '</td>'
+        if self.currentStatus.good:
+            html += '<td class="good">Good</td>'
+        else:
+            html += '<td class="bad">Bad</td>'
+        softtime = ''
+        age = datetime.now() - self.currentStatus.observed
+        if age.seconds > 86400:
+            softtime += str(int(age.seconds/86400)) + 'd'
+        if age.seconds > 3600:
+            softtime += str(int(age.seconds%86400/3600)) + 'h'
+        if age.seconds > 60:
+            softtime += str(int(age.seconds%3600/60)) + 'm'
+        softtime += str(age.seconds%60) + 's'
+        if age.seconds > 120:
+            if age.seconds > 300:
+                html += '<td class="bad">'
+            else:
+                html += '<td class="dubious">'
+        else:
+            html += '<td class="good">'
+        html += softtime + '</td>'
+        return html
 
     def check(self, tries=0):
         if tries != 0 or tries >= self.tries:
@@ -94,6 +128,7 @@ class Status(Base):
     statusid = Column(Integer, primary_key=True)
     good = Column(Boolean, nullable=False)
     service = Column(ForeignKey('services.serviceid'), nullable=False)
+    lastchecked = Column(DateTime, nullable=False)
     observed = Column(DateTime, nullable=False)
     expired = Column(DateTime)
 

@@ -35,8 +35,6 @@ if __name__ == '__main__':
             port=port)
     else:
         s = Session()
-        #q = s.query('services')
-        #for service in q.statement.execute().fetchall():
         for service in s.query(Service).all():
             print('Checking service:', service.name)
             service.check()
