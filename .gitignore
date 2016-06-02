@@ -2,3 +2,4 @@ statuses/**
 monitors/**
 *.py[co]
 __pycache__/**
+**.sqlite
