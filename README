@@ -1,35 +1,17 @@
-screamingkettle readme
+This is a service monitoring program. It performs checks managed by a sqlite database. 
 
-This is a script (watchPots.py), which runs one of several types of
-essentially Boolean verfications of external services. This then records those
-statuses, which are read by a Bottle server (whistle.py), and reported to a
-web browser on port 8000.
+To initialize the database, run $ python3 Database.py
+To add services, run $ python3 skmgmnt.py
+    follow the prompts.
+There are some additional flags that aren't set by default by skmgmnt.
+If you want those flags on, go ahead and set them manually via sqlite.
 
-The most important files to understand here are:
-whistle.py: a Bottle server, to be run on the monitoring machine for easy web readout
-watchPots.py: checks all the services, provides the statuses read by whistle
-kettles.py: library for the previous two
-steam.py: is an easy, portable Bottle server for giving output to a browser
+potwatcher.py is the daemon. Once per second, it runs checks for any services whose 
+interval has elapsed. webinterface.py serves up a basic little table of statuses on
+port 8000.
 
-To add new services for monitoring, add a file in the monitors/ directory, with
-a recognizable name for the file. This filename is how the service will be
-listed on the Bottle server. Other fields are to be listed on their own line,
-separated from their values by an '='.
-
-Supported services and their directives are as follows:
-    http:
-    serviceType=website
-    url=http://example.com
-
-    minecraft: (will list the number of connected players in the notes field)
-    serviceType=minecraft
-    connectionString=example.com:1234
-
-    ping:
-    serviceType=ping
-    address=1.2.3.4 OR example.com
-
-    portscan:
-    serviceType=portscan
-    address=1.2.3.4 OR example.com
-    port=1000
+steam.py is a basic little webserver that can be run on ay server to send the output
+of a command to a web interface, so that you can check values with potwatcher.
+Usage is: ./steam.py [port] [command, probably with quotes]
+Just point a service at the steam port on whatever server it is with skmgmnt, and 
+you're good to go.
