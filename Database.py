@@ -20,6 +20,7 @@ class Service(Base):
     hasstring = Column(String(25)) # Verifies that content contains this value.
     tries = Column(Integer, default=3)
     report = Column(Boolean, default=True) # Whether or not it is displayed.
+    interval = Column(Integer, default=60) # How often to check
 
     @property
     def currentStatus(self):
@@ -41,16 +42,16 @@ class Service(Base):
         print(self.name, 'value:', value)
         s = Session()
         currentStatus = self.currentStatus
-        s.add(currentStatus)
         timestamp = datetime.now()
         if currentStatus:
+            s.add(currentStatus)
             currentStatus.lastchecked = timestamp
             if not currentStatus.good == value:
                 currentStatus.expired = timestamp
                 s.add(newStatus(value, timestamp))
         else:
-            newStatus(value, timestamp)
-        print(s)
+            s.add(newStatus(value, timestamp))
+        print(s.new)
         s.commit()
     
     def html(self):
@@ -66,10 +67,11 @@ class Service(Base):
             softtime += str(seconds%60) + 's'
             return softtime
             
-        def judgetime(seconds, dubious=120, bad=300):
+        def judgetime(seconds):
             # Return a column with a class, depending the time.
-            if seconds > dubious:
-                if seconds > bad:
+            interval = self.interval
+            if seconds > interval*2:
+                if seconds > interval*5:
                     judgement = 'bad'
                 else:
                     judgement = 'dubious'
@@ -114,12 +116,14 @@ class Service(Base):
                 self.check(tries=tries)
         elif servicetype == 'http' or servicetype == 'https':
             try:
-                url = servicetype + '://' + self.address + str(self.port)
-                p = requests.get(url)
+                url = servicetype + '://' + self.address + ':' + str(self.port)
+                print(url)
+                p = requests.get(url, timeout=2)
                 if self.hasstring:
                     if self.hasstring in p.text:
                         self.updateStatus(True)
                     else:
+                        print(p.text)
                         self.updateStatus(False)
                 else:
                     self.updateStatus(True)
