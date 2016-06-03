@@ -32,7 +32,7 @@ if __name__ == '__main__':
         if len(hasstring) == 0:
             hasstring = False
         addStatus(name=name, servicetype=servicetype, address=address, 
-            port=port)
+            port=port, hasstring=hasstring)
     else:
         s = Session()
         for service in s.query(Service).all():

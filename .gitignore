@@ -3,5 +3,7 @@ monitors/**
 *.py[co]
 __pycache__/**
 **.sqlite
+**.swp
+**.conf
 screamingkettle.sqlite
 

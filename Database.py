@@ -25,30 +25,33 @@ class Service(Base):
     def currentStatus(self):
         try:
             s = Session()
-            return s.query(Status).filter(and_(Status.expired == None,
+            status = s.query(Status).filter(and_(Status.expired == None,
                 Status.service == self.serviceid)).one()
+            s.close()
+            return status
         except sqlalchemy.orm.exc.NoResultFound:
             return False
     def updateStatus(self, value):
         # Update the status if it has changed, do nothing otherwise.
         def newStatus(value, timestamp):
-            s = Session()
             status = Status(good=value, service=self.serviceid, 
                 observed=timestamp, lastchecked=timestamp)
-            s.add(status)
-            s.commit()
+            return status
 
         print(self.name, 'value:', value)
+        s = Session()
         currentStatus = self.currentStatus
+        s.add(currentStatus)
         timestamp = datetime.now()
         if currentStatus:
             currentStatus.lastchecked = timestamp
             if not currentStatus.good == value:
                 currentStatus.expired = timestamp
-                newStatus(value, timestamp)
-            currentStatus.update()
+                s.add(newStatus(value, timestamp))
         else:
             newStatus(value, timestamp)
+        print(s)
+        s.commit()
     
     def html(self):
         timestamp = datetime.now()
