@@ -15,3 +15,7 @@ of a command to a web interface, so that you can check values with potwatcher.
 Usage is: ./steam.py [port] [command, probably with quotes]
 Just point a service at the steam port on whatever server it is with skmgmnt, and 
 you're good to go.
+
+In order to run things at startup, add the following lines to rc.local (also, install tmux):
+tmux new -s potwatcher -d 'cd /home/screamingkettle/screamingkettle/ ; source env/bin/activate ; ./potwatcher.py'
+tmux new -s webinterface -d 'cd /home/screamingkettle/screamingkettle/ ; source env/bin/activate ; ./webinterface.py'

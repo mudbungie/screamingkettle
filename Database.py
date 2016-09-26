@@ -51,7 +51,7 @@ class Service(Base):
                 s.add(newStatus(value, timestamp))
         else:
             s.add(newStatus(value, timestamp))
-        print(s.new)
+        #print(s.new)
         s.commit()
     
     def html(self):
