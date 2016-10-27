@@ -10,6 +10,7 @@ def getServices():
     s = Session()
     services = s.query(Service).all()
     services.sort(key=lambda service: service.currentStatus.observed)
+    services.reverse()
     good = []
     bad = []
     for service in services:
