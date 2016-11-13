@@ -130,7 +130,8 @@ class Service(Base):
             # Requests has a lot of exceptions.
             except (requests.exceptions.ConnectionError,
                 requests.exceptions.ReadTimeout,
-                requests.exceptions.ConnectTimeout):
+                requests.exceptions.ConnectTimeout,
+		requests.exceptions.TooManyRedirects):
                     self.updateStatus(False)
         elif servicetype == 'minecraft':
             server = MinecraftServer.lookup(self.address + ':' + \
