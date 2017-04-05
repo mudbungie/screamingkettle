@@ -10,7 +10,10 @@ def checkServices():
     # Filter services by those with a last updated larger than their interval.
     for service in services:
         timestamp = datetime.now()
-        age = timestamp - service.currentStatus.lastchecked
+        try:
+          age = timestamp - service.currentStatus.lastchecked
+        except TypeError:
+          service.check()
         if age.seconds > service.interval:
             service.check()
 
