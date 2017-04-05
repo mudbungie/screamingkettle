@@ -87,7 +87,7 @@ class Service(Base):
         else:
             html += '<td class="bad">Bad</td>'
         age = timestamp - self.currentStatus.lastchecked
-				seconds = int(age.total_seconds())
+        seconds = int(age.total_seconds())
         html += '<td class="' + judgetime(seconds) + '">'
         html += softtime(seconds) + '</td>'
         age = timestamp - self.currentStatus.observed
@@ -132,7 +132,7 @@ class Service(Base):
             except (requests.exceptions.ConnectionError,
                 requests.exceptions.ReadTimeout,
                 requests.exceptions.ConnectTimeout,
-		requests.exceptions.TooManyRedirects):
+                requests.exceptions.TooManyRedirects):
                     self.updateStatus(False)
         elif servicetype == 'minecraft':
             server = MinecraftServer.lookup(self.address + ':' + \
