@@ -87,10 +87,11 @@ class Service(Base):
         else:
             html += '<td class="bad">Bad</td>'
         age = timestamp - self.currentStatus.lastchecked
-        html += '<td class="' + judgetime(age.seconds) + '">'
-        html += softtime(age.seconds) + '</td>'
+				seconds = int(age.total_seconds())
+        html += '<td class="' + judgetime(seconds) + '">'
+        html += softtime(seconds) + '</td>'
         age = timestamp - self.currentStatus.observed
-        html += '<td>' + softtime(age.seconds) + '</td>'
+        html += '<td>' + softtime(seconds) + '</td>'
 
         return html
 
