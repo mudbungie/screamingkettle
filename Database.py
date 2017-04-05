@@ -155,9 +155,3 @@ class Status(Base):
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
-# Class for a service, as defined in the database.
-# Has methods to check itself, find if it has wrecked itself.
-
-from Database import Service, Status, Session
-import socket
-
