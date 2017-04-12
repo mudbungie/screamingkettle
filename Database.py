@@ -90,7 +90,9 @@ class Service(Base):
         seconds = int(age.total_seconds())
         html += '<td class="' + judgetime(seconds) + '">'
         html += softtime(seconds) + '</td>'
+
         age = timestamp - self.currentStatus.observed
+        seconds = int(age.total_seconds())
         html += '<td>' + softtime(seconds) + '</td>'
 
         return html
